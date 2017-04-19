@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     moduleId: module.id,
     selector: 'app',
     templateUrl: './app.component.html',
-    styleUrl: './style/app.less'
+    styleUrls: ['./style/app.less', './style/test.less']
 })
 export class AppComponent {
     loading = false;

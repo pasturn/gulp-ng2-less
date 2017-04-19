@@ -21,7 +21,7 @@ AppComponent = __decorate([
         moduleId: module.id,
         selector: 'app',
         templateUrl: './app.component.html',
-        styleUrl: './style/app.less'
+        styleUrls: ['./style/app.less', './style/test.less']
     })
 ], AppComponent);
 exports.AppComponent = AppComponent;
