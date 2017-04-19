@@ -1,0 +1,24 @@
+{
+  "name": "gulp-ng2-less",
+  "version": "0.1.0",
+  "description": "A gulp plugin to compile styleUrls with less to css.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha testing\\less.test.js"
+  },
+  "author": "pasturn",
+  "license": "MIT",
+  "dependencies": {
+    "autoprefixer": "^6.7.7",
+    "gulp-util": "^3.0.8",
+    "less": "^2.7.2",
+    "object-assign": "^4.1.1",
+    "postcss": "^5.2.17",
+    "through2": "^2.0.3"
+  },
+  "devDependencies": {
+    "event-stream": "^3.3.4",
+    "mocha": "^3.2.0",
+    "vinyl": "^2.0.2"
+  }
+}
