@@ -30,8 +30,7 @@ module.exports = function (options) {
 
     return through2.obj(function(file, enc, cb){
         if (file.isNull()) {
-            cb(null, file);
-            return;
+            return cb(null, file);
         }
 
         if (file.isStream()){
@@ -52,36 +51,47 @@ module.exports = function (options) {
         //compiler 执行
         compilerLess(lessPaths, compilerCallback)
 
-        cb(null, file)
-
-
         function compilerLess(lessPaths, callback){
             var css = "";
             if(lessPaths.length > 0) {
-                for(var i=0; i<lessPaths.length; i++){
-                    var lessPath = path.join(base, lessPaths[i]);
-                    console.log(lessPath)
-                    var content = fs.readFileSync(lessPath, 'utf8');
-
-                    less.render(content, function(err, result){
-                        if(err) {
-                            callback(COMPILER_ERROR, 'Error while compiling less template' + lessPath +  '". Error from "less" plugin: ' + err)
-                        }
-                        css += result.css
-                    })
-                }
-                callback(COMPILER_SUCCESS, css.toString().replace(/\\([\s\S])|(`)/g,"\\$1$2"), lessPaths)
-                console.log(css)
+                var lessPath = path.join(base, lessPaths.shift())
+                var content = fs.readFileSync(lessPath, 'utf8');
+                
+                less.render(content, function(err, result){
+                    if (err) {
+                        callback(COMPILER_ERROR, 'Error while compling less template')
+                    }
+                    if (opts.autoprefixer) {
+                        postcss([ autoprefixer(opts.autoprefixer)])
+                            .process(result.css)
+                            .then(function(prefixedResult){
+                                callback(COMPILER_SUCCESS, prefixedResult.css.toString().replace(/\\([\s\S])|(`)/g,"\\$1$2"), lessPaths)
+                            })
+                    } else {
+                        callback(COMPILER_SUCCESS, result.css.toString().replace(/\\([\s\S])|(`)/g,"\\$1$2"), lessPaths)
+                    }
+                })
+            } else {
+                callback(CODE_EXIT)
             }
         }
 
         function compilerCallback(code, str, lessPaths){
             if(code === COMPILER_SUCCESS){
-                // compilerLess(lessPaths, compilerCallback)
+                compilerLess(lessPaths, compilerCallback)
             } else if(code === COMPILER_ERROR){
-
+                if(opts.skipError){
+                    gutil.log(
+                        PLUGIN_NAME,
+                        gutil.colors.yellow('[Warning]'),
+                        gutil.colors.magenta(str)
+                    );
+                    compiler(lessPaths, compileCallback);
+                } else {
+                    pipe.emit('error', new PluginError(PLUGIN_NAME, str));
+                }
             } else if(code === CODE_EXIT){
-                cb(null, file);
+                return cb(null, file);
             }
 
         }
